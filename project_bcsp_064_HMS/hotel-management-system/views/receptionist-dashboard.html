@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Receptionist Dashboard</title>
+  <link rel="stylesheet" href="/public/css/style.css" />
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="brand">HMS</div>
+      <div>
+        <a href="/views/search.html">Search</a>
+        <a href="/views/billing.html">Billing</a>
+        <button onclick="window.app.logout()">Logout</button>
+      </div>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <h1>Receptionist Dashboard</h1>
+      <p>Use the links below to view bookings and perform check-ins/check-outs.</p>
+
+      <button id="loadBookings">Load Bookings</button>
+
+      <div id="bookingTableContainer"></div>
+    </div>
+
+    <footer>
+      <p>Use the table actions to update booking status quickly.</p>
+    </footer>
+  </div>
+
+  <script src="/public/js/app.js"></script>
+  <script>
+    const tableContainer = document.getElementById('bookingTableContainer');
+
+    const renderBookings = (bookings) => {
+      if (!bookings.length) {
+        tableContainer.innerHTML = '<p>No bookings found.</p>';
+        return;
+      }
+
+      const rows = bookings
+        .map((b) => {
+          const checkin = new Date(b.CheckInDate).toLocaleString();
+          const checkout = new Date(b.CheckOutDate).toLocaleString();
+          return `
+            <tr>
+              <td>${b.BookingID}</td>
+              <td>${b.GuestFirstName} ${b.GuestLastName}</td>
+              <td>${b.RoomNumber || 'Unassigned'}</td>
+              <td>${checkin}</td>
+              <td>${checkout}</td>
+              <td>${b.Status}</td>
+              <td>
+                <button data-id="${b.BookingID}" data-action="checkin">Check In</button>
+                <button data-id="${b.BookingID}" data-action="checkout">Check Out</button>
+              </td>
+            </tr>
+          `;
+        })
+        .join('');
+
+      tableContainer.innerHTML = `
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Guest</th>
+              <th>Room</th>
+              <th>Check-in</th>
+              <th>Check-out</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+
+      tableContainer.querySelectorAll('button[data-action]').forEach((button) => {
+        button.addEventListener('click', async (event) => {
+          const bookingId = event.target.dataset.id;
+          const action = event.target.dataset.action;
+          try {
+            await window.app.apiRequest(`/api/bookings/${bookingId}/${action}`, { method: 'PUT' });
+            loadBookings();
+          } catch (err) {
+            window.app.handleError(err);
+          }
+        });
+      });
+    };
+
+    const loadBookings = async () => {
+      try {
+        const { data } = await window.app.apiRequest('/api/bookings');
+        renderBookings(data);
+      } catch (err) {
+        window.app.handleError(err);
+      }
+    };
+
+    document.getElementById('loadBookings').addEventListener('click', (event) => {
+      event.preventDefault();
+      loadBookings();
+    });
+  </script>
+</body>
+</html>

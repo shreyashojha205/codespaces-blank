@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manager Dashboard</title>
+  <link rel="stylesheet" href="/public/css/style.css" />
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="brand">HMS</div>
+      <div>
+        <a href="/views/search.html">Search</a>
+        <a href="/views/billing.html">Billing</a>
+        <button onclick="window.app.logout()">Logout</button>
+      </div>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <h1>Manager Dashboard</h1>
+      <p>Generate reports, view revenue, and monitor occupancy using the controls below.</p>
+
+      <div class="card card--transparent">
+        <h2>Report Period</h2>
+        <form id="reportForm">
+          <label for="startDate">Start Date</label>
+          <input type="date" id="startDate" name="startDate" required />
+
+          <label for="endDate">End Date</label>
+          <input type="date" id="endDate" name="endDate" required />
+
+          <button type="submit">Load Reports</button>
+        </form>
+      </div>
+
+      <div id="reports"></div>
+
+      <div class="card card--transparent">
+        <h2>Room Types & Rooms</h2>
+        <p>
+          Management of room types and rooms is available via the API endpoints. Use tools like Postman or curl to perform CRUD operations.
+        </p>
+        <pre>
+GET /api/rooms/types
+POST /api/rooms/types
+PUT /api/rooms/types/:id
+DELETE /api/rooms/types/:id
+        </pre>
+      </div>
+    </div>
+
+    <footer>
+      <p>Manager features include occupancy tracking, revenue analysis, and pending billing review.</p>
+    </footer>
+  </div>
+
+  <script src="/public/js/app.js"></script>
+  <script>
+    const reportsContainer = document.getElementById('reports');
+    const reportForm = document.getElementById('reportForm');
+
+    const renderReport = (title, value) => {
+      return `
+        <div class="card card--transparent">
+          <h3>${title}</h3>
+          <pre>${JSON.stringify(value, null, 2)}</pre>
+        </div>
+      `;
+    };
+
+    reportForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const startDate = reportForm.startDate.value;
+      const endDate = reportForm.endDate.value;
+
+      if (!startDate || !endDate) {
+        return;
+      }
+
+      try {
+        const occupancy = await window.app.apiRequest(`/api/reports/occupancy?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`);
+        const revenue = await window.app.apiRequest(`/api/reports/revenue?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`);
+        const pending = await window.app.apiRequest('/api/reports/pending-bills');
+        const popular = await window.app.apiRequest('/api/reports/popular-room-types');
+
+        reportsContainer.innerHTML = `
+          ${renderReport('Occupancy Rate', occupancy.data)}
+          ${renderReport('Revenue', revenue.data)}
+          ${renderReport('Pending Bills', pending.data)}
+          ${renderReport('Popular Room Types', popular.data)}
+        `;
+      } catch (err) {
+        window.app.handleError(err);
+      }
+    });
+  </script>
+</body>
+</html>

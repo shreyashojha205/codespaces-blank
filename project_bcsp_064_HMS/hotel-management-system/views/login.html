@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HMS Login</title>
+  <link rel="stylesheet" href="/public/css/style.css" />
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="brand">HMS</div>
+      <div>
+        <a href="/">Login</a>
+        <a href="/views/register.html">Register</a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <h1>Welcome Back</h1>
+      <p>Sign in to manage bookings, billing, and reports.</p>
+
+      <form id="loginForm">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required />
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required />
+
+        <button type="submit">Login</button>
+      </form>
+
+      <p>
+        New guest? <a href="/views/register.html">Create an account</a>
+      </p>
+    </div>
+
+    <footer>
+      <p>Built for academic use — secure, responsive, and ready for expansion.</p>
+    </footer>
+  </div>
+
+  <script src="/public/js/app.js"></script>
+  <script>
+    const form = document.getElementById('loginForm');
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const email = form.email.value.trim();
+      const password = form.password.value.trim();
+
+      try {
+        const { data } = await window.app.apiRequest('/api/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, password }),
+        });
+
+        switch (data.role) {
+          case 'Manager':
+            window.location.href = '/views/manager-dashboard.html';
+            break;
+          case 'Receptionist':
+            window.location.href = '/views/receptionist-dashboard.html';
+            break;
+          default:
+            window.location.href = '/views/guest-dashboard.html';
+        }
+      } catch (err) {
+        window.app.handleError(err);
+      }
+    });
+  </script>
+</body>
+</html>
