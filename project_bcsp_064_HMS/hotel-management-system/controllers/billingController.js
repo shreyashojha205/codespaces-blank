@@ -19,6 +19,11 @@ const calculateBilling = async (req, res, next) => {
 
     const booking = bookings[0];
 
+    // Security check: Only the booking's guest or a staff member can access the bill
+    if (req.session.user && req.session.user.role === 'Guest' && booking.GuestID !== req.session.user.id) {
+       return res.status(403).json({ success: false, error: { message: 'Access denied: You can only view your own bills' } });
+    }
+
     const services = await query('SELECT SUM(Charge) AS total FROM Services WHERE BookingID = ?', [bookingId]);
     const serviceCharges = parseFloat(services[0].total || 0);
 

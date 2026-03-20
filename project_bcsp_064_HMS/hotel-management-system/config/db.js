@@ -12,6 +12,23 @@ const pool = mysql.createPool({
   decimalNumbers: true,
 });
 
+// Test DB Connection immediately on startup
+pool.getConnection()
+  .then((conn) => {
+    // eslint-disable-next-line no-console
+    console.log('✅ Successfully connected to the MySQL database.');
+    conn.release();
+  })
+  .catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error('\n❌ CRITICAL WARNING: Could not connect to the MySQL database.');
+    // eslint-disable-next-line no-console
+    console.error('   Please check your .env file or ensure MySQL is running.\n');
+    // eslint-disable-next-line no-console
+    console.error('   Original error:', err.message, '\n');
+  });
+
+
 /**
  * Run a single query using the pool.
  * This uses prepared statements to prevent SQL injection.

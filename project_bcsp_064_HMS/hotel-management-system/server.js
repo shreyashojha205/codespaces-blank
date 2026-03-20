@@ -4,9 +4,7 @@ const express = require('express');
 const path = require('path');
 const helmet = require('helmet');
 const session = require('express-session');
-const RedisStore = require('connect-redis').default;
 const rateLimit = require('express-rate-limit');
-const { redisClient } = require('./config/redis');
 const { sessionConfig } = require('./config/session');
 const { errorHandler } = require('./middleware/errorMiddleware');
 
@@ -20,7 +18,17 @@ const app = express();
 app.set('trust proxy', 1);
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:"],
+    },
+  },
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -32,30 +40,50 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+const sessionStore = new session.MemoryStore();
+
 app.use(
   session({
     ...sessionConfig,
-    store: new RedisStore({ client: redisClient }),
+    store: sessionStore,
   })
 );
+
+// --- AGGRESSIVE DEBUG LOGGING ---
+app.use((req, res, next) => {
+  console.log(`[DEBUG] ${req.method} ${req.originalUrl}`);
+  console.log(`  -> Cookies received by Express:`, req.headers.cookie || 'NONE');
+  console.log(`  -> Session ID:`, req.session ? req.session.id : 'UNDEFINED');
+  console.log(`  -> Session User:`, req.session && req.session.user ? !!req.session.user : 'NO_USER');
+  next();
+});
+// --------------------------------
 
 // Static assets
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-// Protect view access so only authenticated sessions can access dashboards
-app.use('/views', (req, res, next) => {
-  const openPaths = ['/login.html', '/register.html'];
-  if (openPaths.includes(req.path)) {
-    return next();
-  }
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
-  if (!req.session || !req.session.user) {
+app.use((req, res, next) => {
+  res.locals.user = req.session && req.session.user ? req.session.user : null;
+  next();
+});
+
+// Protect and render views dynamically
+app.get('/views/:page', (req, res, next) => {
+  let page = req.params.page;
+  if (page.endsWith('.html')) page = page.replace('.html', '');
+
+  const openPaths = ['login', 'register'];
+  if (!openPaths.includes(page) && (!req.session || !req.session.user)) {
     return res.redirect('/');
   }
 
-  return next();
+  res.render(page);
 });
-app.use('/views', express.static(path.join(__dirname, 'views')));
+
+// Removed static views middleware
 
 // API routes
 app.use('/api/auth', authRoutes);
@@ -66,7 +94,7 @@ app.use('/api/reports', reportRoutes);
 
 // Fallback route for minimal HTML entrypoints
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'login.html'));
+  res.render('login');
 });
 
 // Error handler

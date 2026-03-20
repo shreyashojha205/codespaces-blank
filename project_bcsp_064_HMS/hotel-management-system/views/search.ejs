@@ -1,22 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Search Rooms</title>
-  <link rel="stylesheet" href="/public/css/style.css" />
-</head>
-<body>
-  <header>
-    <nav>
-      <div class="brand">HMS</div>
-      <div>
-        <a href="/views/guest-dashboard.html">Dashboard</a>
-        <a href="/views/billing.html">Billing</a>
-        <button onclick="window.app.logout()">Logout</button>
-      </div>
-    </nav>
-  </header>
+<%- include('partials/header') %>
 
   <div class="container">
     <div class="card">
@@ -37,11 +19,10 @@
       <div id="results"></div>
     </div>
 
-    <footer>
-      <p>Use your booking ID to view billing and complete your stay.</p>
-    </footer>
+    
   </div>
 
+  <%- include('partials/footer') %>
   <script src="/public/js/app.js"></script>
   <script>
     const results = document.getElementById('results');

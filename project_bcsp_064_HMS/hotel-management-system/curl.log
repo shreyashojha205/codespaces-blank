@@ -1,0 +1,28 @@
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0100    108 100     59 100     49    758    630                              0100    108 100     59 100     49    757    629                              0100    108 100     59 100     49    756    628                              0
+HTTP/1.1 401 Unauthorized
+Content-Security-Policy: default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Resource-Policy: same-origin
+Origin-Agent-Cluster: ?1
+Referrer-Policy: no-referrer
+Strict-Transport-Security: max-age=15552000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-DNS-Prefetch-Control: off
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Permitted-Cross-Domain-Policies: none
+X-XSS-Protection: 0
+RateLimit-Policy: 50;w=60
+RateLimit-Limit: 50
+RateLimit-Remaining: 49
+RateLimit-Reset: 57
+Content-Type: application/json; charset=utf-8
+Content-Length: 59
+ETag: W/"3b-CM/7Um6TI6wfd55mSj2MYWM5Lcg"
+Date: Fri, 20 Mar 2026 13:07:40 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"success":false,"error":{"message":"Invalid credentials"}}

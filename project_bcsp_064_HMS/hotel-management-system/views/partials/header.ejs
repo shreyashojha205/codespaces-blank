@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HMS Dashboard</title>
+  <link rel="stylesheet" href="/public/css/style.css" />
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="brand">HMS</div>
+      <div>
+        <% if (user) { %>
+          <a href="/views/search">Search</a>
+          <a href="/views/billing">Billing</a>
+          <% if (user.role === 'Manager') { %>
+            <a href="/views/manager-dashboard">Manager</a>
+          <% } else if (user.role === 'Receptionist') { %>
+            <a href="/views/receptionist-dashboard">Receptionist</a>
+          <% } else { %>
+            <a href="/views/guest-dashboard">Dashboard</a>
+          <% } %>
+          <button onclick="window.app.logout()">Logout</button>
+        <% } else { %>
+          <a href="/views/login">Login</a>
+          <a href="/views/register">Register</a>
+        <% } %>
+      </div>
+    </nav>
+  </header>

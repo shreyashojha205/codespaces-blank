@@ -28,7 +28,10 @@ const login = async (req, res, next) => {
         email: guest.Email,
         role: 'Guest',
       };
-      return res.json({ success: true, data: { role: 'Guest' } });
+      return req.session.save((err) => {
+        if (err) return next(err);
+        return res.json({ success: true, data: { role: 'Guest' } });
+      });
     }
 
     // Fallback: staff login (Receptionist / Manager)
@@ -45,7 +48,10 @@ const login = async (req, res, next) => {
         email: staff.Email,
         role: staff.Role,
       };
-      return res.json({ success: true, data: { role: staff.Role } });
+      return req.session.save((err) => {
+        if (err) return next(err);
+        return res.json({ success: true, data: { role: staff.Role } });
+      });
     }
 
     return res.status(401).json({ success: false, error: { message: 'Invalid credentials' } });

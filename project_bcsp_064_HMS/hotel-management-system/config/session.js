@@ -6,7 +6,7 @@ const sessionConfig = {
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: false,
     maxAge: (parseInt(process.env.SESSION_TTL_SECONDS, 10) || 86400) * 1000,
   },
 };
