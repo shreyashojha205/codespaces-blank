@@ -1,7 +1,14 @@
 const { getConnection, query } = require('../config/db');
 
 const createBooking = async (req, res, next) => {
-  const { roomId, guestId, checkInDate, checkOutDate, status } = req.body;
+  let { roomId, guestId, checkInDate, checkOutDate, status } = req.body;
+  const user = req.session.user;
+
+  // Security: Guests cannot book for others or bypass status
+  if (user && user.role === 'Guest') {
+    guestId = user.id;
+    status = 'Reserved';
+  }
 
   if (!guestId || !checkInDate || !checkOutDate) {
     return res.status(400).json({

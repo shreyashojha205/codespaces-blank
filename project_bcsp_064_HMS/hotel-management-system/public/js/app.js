@@ -16,8 +16,30 @@ const apiRequest = async (url, options = {}) => {
 };
 
 const handleError = (err) => {
-  const message = err?.error?.message || err?.message || 'Unexpected error';
-  alert(message);
+  let message = 'Unexpected error';
+  if (err) {
+    if (err.error && err.error.message) message = err.error.message;
+    else if (err.message) message = err.message;
+  }
+  
+  // Find or create an error banner
+  let errBox = document.getElementById('errorBox');
+  if (!errBox) {
+    errBox = document.createElement('div');
+    errBox.id = 'errorBox';
+    errBox.style = "background: #f8dbdb; color: #a94442; padding: 10px; border-radius: 4px; margin-bottom: 15px; border: 1px solid #ebccd1; text-align: center;";
+    
+    const card = document.querySelector('.card');
+    if (card) card.prepend(errBox);
+    else document.body.prepend(errBox);
+  }
+  
+  errBox.textContent = message;
+  
+  // Auto dismiss after 5 seconds
+  setTimeout(() => {
+    if (errBox.parentNode) errBox.remove();
+  }, 5000);
 };
 
 const logout = async () => {

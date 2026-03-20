@@ -1,0 +1,2 @@
+✅ Successfully connected to the MySQL database.
+Found 4 guests in database! Connection is working.

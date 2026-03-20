@@ -1,22 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Manager Dashboard</title>
-  <link rel="stylesheet" href="/public/css/style.css" />
-</head>
-<body>
-  <header>
-    <nav>
-      <div class="brand">HMS</div>
-      <div>
-        <a href="/views/search.html">Search</a>
-        <a href="/views/billing.html">Billing</a>
-        <button onclick="window.app.logout()">Logout</button>
-      </div>
-    </nav>
-  </header>
+<%- include('partials/header') %>
 
   <div class="container">
     <div class="card">
@@ -52,11 +34,10 @@ DELETE /api/rooms/types/:id
       </div>
     </div>
 
-    <footer>
-      <p>Manager features include occupancy tracking, revenue analysis, and pending billing review.</p>
-    </footer>
+    
   </div>
 
+  <%- include('partials/footer') %>
   <script src="/public/js/app.js"></script>
   <script>
     const reportsContainer = document.getElementById('reports');
